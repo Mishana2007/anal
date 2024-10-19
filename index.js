@@ -11,24 +11,19 @@ const token = process.env.TELEGRAM_TOKEN;
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 const bot = new TelegramBot(token, { polling: true });
+const db = new sqlite3.Database('messages.db');
 
-// Подключение к базе данных
-let db = new sqlite3.Database('./messages.db', (err) => {
-    if (err) {
-        console.error('Ошибка при подключении к базе данных:', err.message);
-    } else {
-        console.log('Подключено к базе данных SQLite');
-        db.run(`CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            username TEXT,
-            chat_id INTEGER,
-            chat_title TEXT,
-            message_text TEXT,
-            date INTEGER,
-            chat_type TEXT
-        )`);
-    }
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        username TEXT,
+        chat_id INTEGER,
+        chat_title TEXT,
+        message_text TEXT,
+        date INTEGER,
+        chat_type TEXT
+    )`);
 });
 
 // Функция для получения сообщений по дате
